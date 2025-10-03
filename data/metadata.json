@@ -1,0 +1,9 @@
+{
+	"turn": 1,
+	"gameLength": 10,
+	"map": "barnacle-and-dime",
+	"status": "TURN",
+	"startTime": 1758984301,
+	"checkInLength": 3600,
+	"silverStars": []
+}
