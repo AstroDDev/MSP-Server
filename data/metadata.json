@@ -1,9 +1,15 @@
 {
+	"modKey": "thisisatestkey",
 	"turn": 1,
 	"gameLength": 10,
 	"map": "barnacle-and-dime",
-	"status": "TURN",
-	"startTime": 1758984301,
+	"status": "REGISTRATION",
+	"startTime": 1760984706,
 	"checkInLength": 3600,
-	"silverStars": []
+	"generateSilverStars": false,
+	"turnLength": 3,
+	"nextStatus": 0,
+	"minigameStartTime": 0,
+	"silverStars": [],
+	"playedMinigames": []
 }
