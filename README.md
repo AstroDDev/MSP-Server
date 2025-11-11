@@ -1,0 +1,1 @@
+This is the server code for Mega Splat Party. The Mario Party meets Splatoon party game that runs in your browser. Eventually here there will be a tutorial on how to host your own private games of Mega Splat Party.
