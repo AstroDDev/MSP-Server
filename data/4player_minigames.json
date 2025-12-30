@@ -1,7 +1,7 @@
 {
     "salmonrun": {
+        "hidden": true,
         "weight": 1,
-        "battleable": false,
         "timeLimit": 13,
         "lobbySize": 4,
         "minLobbySize": 4,
@@ -18,7 +18,6 @@
     },
     "understaffed": {
         "weight": 1,
-        "battleable": false,
         "timeLimit": 13,
         "lobbySize": 2,
         "minLobbySize": 2,
@@ -35,7 +34,6 @@
     },
     "salmonrun1v3": {
         "weight": 1,
-        "battleable": false,
         "timeLimit": 13,
         "lobbySize": 4,
         "minLobbySize": 4,
@@ -54,7 +52,6 @@
     },
     "salmonrunreverse1v3": {
         "weight": 1,
-        "battleable": false,
         "timeLimit": 13,
         "lobbySize": 4,
         "minLobbySize": 4,
@@ -67,13 +64,12 @@
         "soloMinigame": "killssolo",
         "extraMinigame": "survivalextra",
         "title": "Kindergarten Bullying",
-        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 15%</b> and the map to <b>Salmonid Smokeyard.</b> Players with a red name on the results page must select \"<b>?</b>\" as their weapon. The other player may select any weapon they'd like.<br><br><b>{Player}</b>, <b>{Player}</b>, and <b>{Player}</b> are \"Throwers\" attempting to lose the shift. The other player is trying to clear the shift by themself. If the shift is failed, the throwers will win. Use any (in game) means necessary to secure victory!<br><br>When submitting results, if you cleared the shift, enter <b>Win</b>, otherwise enter <b>Lose</b>.",
+        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 25%</b> and the map to <b>Salmonid Smokeyard.</b> Players with a red name on the results page must select \"<b>?</b>\" as their weapon. The other player may select any weapon they'd like.<br><br><b>{Player}</b>, <b>{Player}</b>, and <b>{Player}</b> are \"Throwers\" attempting to lose the shift. The other player is trying to clear the shift by themself. If the shift is failed, the throwers will win. Use any (in game) means necessary to secure victory!<br><br>When submitting results, if you cleared the shift, enter <b>Win</b>, otherwise enter <b>Lose</b>.",
         "setApartPlayers": 3,
         "invertSetApartScore": true
     },
     "goldeneggs": {
         "weight": 1,
-        "battleable": false,
         "timeLimit": 13,
         "lobbySize": 4,
         "minLobbySize": 2,
@@ -87,11 +83,10 @@
         "soloMinigame": "goldeneggssolo",
         "extraMinigame": "goldeneggsextra",
         "title": "Over Fishing",
-        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100%</b> and the map to <b>Bonerattle Arena.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 3 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the end screen."
+        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100</b> and the map to <b>Bonerattle Arena.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 3 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the end screen."
     },
     "salmonrunrevive": {
         "weight": 1,
-        "battleable": true,
         "timeLimit": 13,
         "lobbySize": 4,
         "minLobbySize": 2,
@@ -108,7 +103,6 @@
     },
     "tableturf": {
         "weight": 1,
-        "battleable": true,
         "timeLimit": 13,
         "lobbySize": 2,
         "minLobbySize": 2,
@@ -125,7 +119,6 @@
     },
     "gamble": {
         "weight": 0.5,
-        "battleable": true,
         "timeLimit": 8,
         "lobbySize": 4,
         "minLobbySize": 2,
@@ -142,7 +135,6 @@
     },
     "speedrun1": {
         "weight": 0.5,
-        "battleable": true,
         "timeLimit": 8,
         "lobbySize": 4,
         "minLobbySize": 2,
@@ -159,7 +151,6 @@
     },
     "speedrun2": {
         "weight": 0.5,
-        "battleable": true,
         "timeLimit": 8,
         "lobbySize": 4,
         "minLobbySize": 2,
@@ -176,7 +167,6 @@
     },
     "speedrun3": {
         "weight": 0.5,
-        "battleable": true,
         "timeLimit": 8,
         "lobbySize": 4,
         "minLobbySize": 2,
@@ -192,8 +182,8 @@
         "description": "This minigame is played individually in <b>Alterna</b> (aka Story Mode) on level <b>6-6: Keep It Rolling.</b><br><br>Players will play through level 6-6 <b>once</b> as quickly as possible. Play through the level the fastest to win! Your final time will be the time that shows up on the level clear screen. A penalty of <b>5 seconds</b> will be added for each time you die in game.<br><br>When submitting results, enter <b>1</b> for the player with the fastest time, <b>2</b> for the 2nd fastest and so on. If 2 players have the same time, it is considered a tie. If a player does not remember their time, they are given last place."
     },
     "bigbangtiming": {
+        "hidden": true,
         "weight": 0.25,
-        "battleable": true,
         "timeLimit": 8,
         "lobbySize": 4,
         "minLobbySize": 2,
@@ -211,7 +201,6 @@
     "anarchyopen": {
         "hidden": true,
         "weight": 0.5,
-        "battleable": false,
         "timeLimit": 11,
         "lobbySize": 4,
         "minLobbySize": 2,
@@ -224,8 +213,8 @@
         "description": "This minigame is played together in <b>Anarchy Open.</b><br><br>Players will play one match of Anarchy Open together. Your goal is to win. Simple enough.<br><br>When submitting results, enter <b>Win</b> if you won the match or <b>Lose</b> if you lost."
     },
     "splatzones": {
+        "hidden": true,
         "weight": 1,
-        "battleable": false,
         "timeLimit": 13,
         "lobbySize": 8,
         "minLobbySize": 4,
@@ -243,7 +232,6 @@
     },
     "towercontrol": {
         "weight": 1,
-        "battleable": true,
         "timeLimit": 13,
         "lobbySize": 8,
         "minLobbySize": 4,
@@ -260,7 +248,6 @@
     },
     "clamblitz1": {
         "weight": 1,
-        "battleable": true,
         "timeLimit": 13,
         "lobbySize": 8,
         "minLobbySize": 4,
@@ -278,8 +265,8 @@
         "invertSetApartScore": true
     },
     "clamblitz2": {
+        "hidden": true,
         "weight": 1,
-        "battleable": true,
         "timeLimit": 13,
         "lobbySize": 4,
         "minLobbySize": 4,
@@ -295,8 +282,8 @@
         "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz.</b> The host can pick their favorite map to play on. Randomly divide the players into 2 teams.<br><br>Players will be randomly split between 2 teams. Your goal is to achieve the <b>#1 Score Booster</b> medal during a match of clam blitz. You can do this by scoring the most points in the enemy basket. On each team there will be 1 winner and 1 loser as each team will have 1 player that recieves the medal in the battle history. In the case where 2 players on a team both recieve the #1 Score Booster medal, both will be awarded the win.<br><br>When submitting results, enter <b>Win</b> if the player achieved the <b>#1 Score Booster medal</b> in their battle history, otherwise enter <b>Lose</b>."
     },
     "rainmaker1": {
+        "hidden": true,
         "weight": 0.5,
-        "battleable": true,
         "timeLimit": 13,
         "lobbySize": 8,
         "minLobbySize": 4,
@@ -315,7 +302,6 @@
     },
     "rainmaker2": {
         "weight": 0.5,
-        "battleable": true,
         "timeLimit": 13,
         "lobbySize": 8,
         "minLobbySize": 4,
@@ -332,7 +318,6 @@
     },
     "rainmaker3": {
         "weight": 0.5,
-        "battleable": true,
         "timeLimit": 13,
         "lobbySize": 8,
         "minLobbySize": 4,
@@ -349,7 +334,6 @@
     },
     "kills": {
         "weight": 1,
-        "battleable": false,
         "timeLimit": 11,
         "lobbySize": 8,
         "minLobbySize": 4,
@@ -368,7 +352,6 @@
     "killtarget": {
         "hidden": true,
         "weight": 1,
-        "battleable": false,
         "timeLimit": 11,
         "lobbySize": 4,
         "minLobbySize": 4,
@@ -386,7 +369,6 @@
     "worstmedal": {
         "hidden": true,
         "weight": 1,
-        "battleable": false,
         "timeLimit": 11,
         "lobbySize": 4,
         "minLobbySize": 4,
@@ -403,7 +385,6 @@
     },
     "protectpresident": {
         "weight": 1,
-        "battleable": true,
         "timeLimit": 11,
         "lobbySize": 8,
         "minLobbySize": 4,
@@ -420,6 +401,7 @@
         "setApartPlayers": 2,
         "invertSetApartScore": true
     },
+
 
 
     "speedrun1extra": {
@@ -484,8 +466,8 @@
     },
     "killsextra": {
         "hidden": true,
-        "lobbySize": 4,
-        "minLobbySize": 2,
+        "lobbySize": 8,
+        "minLobbySize": 4,
         "type": "coin",
         "teams": 0,
         "teamText": [],
@@ -587,69 +569,69 @@
         "type": "coop",
         "teams": 0,
         "title": "Not a Team Player",
-        "description": "This minigame is played together in a <b>Turf War</b> lobby. Players may choose to use any weapon that does not have point sensor or angle shooter as it's sub weapon.<br><br>Your goal is get as many <b>Kills/Assists</b> as possible. The player with the most kills/assists on the battle log wins the minigame.<br><br>When submitting results, enter <b>Win</b> for the player that had more <b>Kills/Assists</b> and enter <b>Lose</b> for the player with less."
+        "description": "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br> This minigame is played together in a <b>Turf War</b> lobby. Players may choose to use any weapon that does not have point sensor or angle shooter as it's sub weapon.<br><br>Your goal is get as many <b>Kills/Assists</b> as possible. The player with the most kills/assists on the battle log wins the minigame.<br><br>When submitting results, enter <b>Win</b> for the player that had more <b>Kills/Assists</b> and enter <b>Lose</b> for the player with less."
     },
     "survivalduel": {
         "hidden": true,
         "type": "coop",
         "teams": 0,
         "title": "Survival of the Fishest",
-        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 200%</b>. The host can pick their favorite map to play on. Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Both players are competing to be the last squid standing. Whoever dies first loses the duel. In the case where the shift is failed before either player dies or it is unclear who died first, it is a tie.<br><br>When submitting results, enter <b>Win</b> by the player who died last and enter <b>Lose</b> by the player who died first. In the case of a tie, enter either <b>Win</b> or <b>Lose</b> for both players."
+        "description": "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br>This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 200%</b>. The host can pick their favorite map to play on. Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Both players are competing to be the last squid standing. Whoever dies first loses the duel. In the case where the shift is failed before either player dies or it is unclear who died first, it is a tie.<br><br>When submitting results, enter <b>Win</b> by the player who died last and enter <b>Lose</b> by the player who died first. In the case of a tie, enter either <b>Win</b> or <b>Lose</b> for both players."
     },
     "goldeneggsduel": {
         "hidden": true,
         "type": "coop",
         "teams": 0,
         "title": "Gold Hoarders",
-        "description": "This minigame is played together in a public <b>Salmon Run</b> lobby.<br><br>Mr. Grizz is offering a once in a lifetime all expenses paid vacation to the best performing employee this month. Your goal is to collect the most <b>Golden Eggs</b> during a shift of Salmon Run.<br><br>When submitting results, enter <b>Win</b> by the player who collected the most golden eggs in the battle history and enter <b>Lose</b> by the player with the least golden eggs."
+        "description": "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br> This minigame is played together in a public <b>Salmon Run</b> lobby.<br><br>Mr. Grizz is offering a once in a lifetime all expenses paid vacation to the best performing employee this month. Your goal is to collect the most <b>Golden Eggs</b> during a shift of Salmon Run.<br><br>When submitting results, enter <b>Win</b> by the player who collected the most golden eggs in the battle history and enter <b>Lose</b> by the player with the least golden eggs."
     },
     "tableturfduel": {
         "hidden": true,
         "type": "coop",
         "teams": 0,
         "title": "Tableturf Battle",
-        "description": "This minigame is played together in a <b>Private Tableturf Battle</b> lobby. The host may pick their favorite map to play on. Set the turn timer to <b>40 seconds.</b><br><br>The goal of this game is the beat your opponent in a match of tableturf.<br><br>When submitting results, enter <b>Win</b> by the player who won and enter <b>Lose</b> by the player who lost."
+        "description": "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br> This minigame is played together in a <b>Private Tableturf Battle</b> lobby. The host may pick their favorite map to play on. Set the turn timer to <b>40 seconds.</b><br><br>The goal of this game is the beat your opponent in a match of tableturf.<br><br>When submitting results, enter <b>Win</b> by the player who won and enter <b>Lose</b> by the player who lost."
     },  
     "splatzonesduel": {
         "hidden": true,
         "type": "coop",
         "teams": 0,
         "title": "Tiny Turf War",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Splat Zones</b>. The host may pick their favorite map to play on.<br><br>Both players will be put onto opposing teams. The goal of the game is to win the game of splat zones.<br><br>When submitting results, enter <b>Win</b> by the player who won and enter <b>Lose</b> by the player who lost."
+        "description": "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br> This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Splat Zones</b>. The host may pick their favorite map to play on.<br><br>Both players will be put onto opposing teams. The goal of the game is to win the game of splat zones.<br><br>When submitting results, enter <b>Win</b> by the player who won and enter <b>Lose</b> by the player who lost."
     },
     "towercontrolduel": {
         "hidden": true,
         "type": "coop",
         "teams": 0,
         "title": "King of the Hill",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Tower Control</b>. The host may pick their favorite map to play on.<br><br>Both players will be put onto opposing teams. The goal of the game is to win the game of tower control.<br><br>When submitting results, enter <b>Win</b> by the player who won and enter <b>Lose</b> by the player who lost."
+        "description": "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br> This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Tower Control</b>. The host may pick their favorite map to play on.<br><br>Both players will be put onto opposing teams. The goal of the game is to win the game of tower control.<br><br>When submitting results, enter <b>Win</b> by the player who won and enter <b>Lose</b> by the player who lost."
     },
     "clamblitzduel": {
         "hidden": true,
         "type": "coop",
         "teams": 0,
         "title": "Clam Blitz",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz</b>. The host may pick their favorite map to play on.<br><br>Both players will be put onto opposing teams. The goal of the game is to win the game of clam blitz.<br><br>When submitting results, enter <b>Win</b> by the player who won and enter <b>Lose</b> by the player who lost."
+        "description": "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br> This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz</b>. The host may pick their favorite map to play on.<br><br>Both players will be put onto opposing teams. The goal of the game is to win the game of clam blitz.<br><br>When submitting results, enter <b>Win</b> by the player who won and enter <b>Lose</b> by the player who lost."
     },
     "rainmakerduel": {
         "hidden": true,
         "type": "coop",
         "teams": 0,
         "title": "Astro's Modded Rainmaker #4",
-        "description": "My team has been hard at work figuring out how we can make Splatoon 3 for the Nintendo Switch better! And what we found was <b>YOU ALL HATE RAINMAKER.</b> So I made it worse! You may now applaud!<br><br>This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Rainmaker.</b> The host can pick their favorite map to play on.<br><br>Both players will be put on opposing teams. Your goal is to win the game of rainmaker but if on the battle history you exceeded <b>600p of paint</b> you will automatically lose despite the result of the match. If both players exceeded 600p of paint, the match is a tie.<br><br><b>Tip:</b> You can use your special gague to estimate how much you have painted.<br><br>When submitting results, enter <b>Win</b> if the player won the match and did not exceed 600p of paint. Enter <b>Lose</b> if they did not win or exceeded 600p of paint. In the case of a tie, enter either <b>Win</b> or <b>Lose</b> for both players."
+        "description": "My team has been hard at work figuring out how we can make Splatoon 3 for the Nintendo Switch better! And what we found was <b>YOU ALL HATE RAINMAKER.</b> So I made it worse! You may now applaud!<br><br>This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br>This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Rainmaker.</b> The host can pick their favorite map to play on.<br><br>Both players will be put on opposing teams. Your goal is to win the game of rainmaker but if on the battle history you exceeded <b>600p of paint</b> you will automatically lose despite the result of the match. If both players exceeded 600p of paint, the match is a tie.<br><br><b>Tip:</b> You can use your special gague to estimate how much you have painted.<br><br>When submitting results, enter <b>Win</b> if the player won the match and did not exceed 600p of paint. Enter <b>Lose</b> if they did not win or exceeded 600p of paint. In the case of a tie, enter either <b>Win</b> or <b>Lose</b> for both players."
     },
     "speedrunduel": {
         "hidden": true,
         "type": "coop",
         "teams": 0,
         "title": "Speedrun Race Duel (Crater-2)",
-        "description": "This minigame is played individually in <b>Alterna</b> (aka Story Mode) on level <b>Crater-2: Sink into the Ink and SWIM!</b> If you are in Alterna, to enter the crater, press the A button on the Zapfish plush on the frist island.<br><br>Players will play through level Crater-2 <b>once</b> as quickly as possible. Play through the level the fastest to win! Your final time will be the time that shows up on the level clear screen. A penalty of <b>5 seconds</b> will be added for each time you die in game.<br><br>When submitting results, enter <b>Win</b> for the player with the fastest time. Enter <b>Lose</b> for the player with the slower time. If both players have the same time, it is considered a tie, give both players either <b>Win</b> or <b>Lose</b>. If a player does not remember their time, they are given a loss."
+        "description": "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br>This minigame is played individually in <b>Alterna</b> (aka Story Mode) on level <b>Crater-2: Sink into the Ink and SWIM!</b><br><br>Players will play through level Crater-2 <b>once</b> as quickly as possible. Play through the level the fastest to win! Your final time will be the time that shows up on the level clear screen. A penalty of <b>5 seconds</b> will be added for each time you die in game.<br><br>When submitting results, enter <b>Win</b> for the player with the fastest time. Enter <b>Lose</b> for the player with the slower time. If both players have the same time, it is considered a tie, give both players either <b>Win</b> or <b>Lose</b>. If a player does not remember their time, they are given a loss."
     },
     "gambleduel":{
         "hidden": true,
         "type": "coop",
         "teams": 0,
         "title": "Gambling Duel",
-        "description": "This minigame is played individually in the <b>Lobby</b> at the <b>Shellout Machine.</b><br><br>Players will do a single pull from the Shellout Machine. Whoever get the rarest pull will win! If both players get the same pull it is considered a tie.<br><br><b>Rarities are as follows from rarest to most common:</b> Gold, Silver, Bronze, Emote, Party Food Ticket, Pack of Cards, Banner, 2x Food Tickets, 3 Ability Chunks, Title, Stickers, Decorations, 50% Food Ticket, Drink Ticket<br><br>When submitting results, enter <b>Win</b> for the player with the rarer pull and enter <b>Lose</b> for the player with the more common pull. If the minigame ended in a tie, enter either <b>Win</b> or <b>Lose</b> for both players."
+        "description": "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br>This minigame is played individually in the <b>Lobby</b> at the <b>Shellout Machine.</b><br><br>Players will do a single pull from the Shellout Machine. Whoever get the rarest pull will win! If both players get the same pull it is considered a tie.<br><br><b>Rarities are as follows from rarest to most common:</b> Gold, Silver, Bronze, Emote, Party Food Ticket, Pack of Cards, Banner, 2x Food Tickets, 3 Ability Chunks, Title, Stickers, Decorations, 50% Food Ticket, Drink Ticket<br><br>When submitting results, enter <b>Win</b> for the player with the rarer pull and enter <b>Lose</b> for the player with the more common pull. If the minigame ended in a tie, enter either <b>Win</b> or <b>Lose</b> for both players."
     }
 }

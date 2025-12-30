@@ -1,10 +1,15 @@
 import { WebSocketServer } from "ws";
 import { readFileSync, writeFileSync, createWriteStream, openSync, write } from "node:fs";
 
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: 6969 });
 
 wss.on("connection", function connection(ws){
     ws.on("message", function m(data){
+        if (data == "ping"){
+            ws.send("pong");
+            return;
+        }
+
         var response = message(data, ws);
         
         if (response !== null && response != "") ws.send(JSON.stringify(response));
@@ -23,7 +28,7 @@ function initialize(){
         Metadata.nextStatus = Math.ceil(Date.now() / 60000) + Metadata.turnLength;
     }
 
-    MapData = JSON.parse(readFileSync("./data/maps/" + Metadata.map + ".json"));
+    MapData = JSON.parse(readFileSync("./data/maps/" + Metadata.map + ".json")).data;
 
     setInterval(update, 10000);
 }
@@ -252,7 +257,6 @@ function mod_change_result(data){
                         //Adjust results for each player
                         if (Object.hasOwn(MinigameLog[i], "bet")){
                             //Subtract the old result then add the new result reward. Makes sure that the lowest possible value is 0
-                            //TODO!!! What about ties?
                             if (MinigameLog[i].result.length == 0 || MinigameLog[i].result[0] == MinigameLog[i].result[1]){
                                 //Old result was a tie
                                 Players[MinigameLog[i].players[n]][MinigameLog[i].bet.type] -= MinigameLog[i].bet.amount;
@@ -354,6 +358,8 @@ function mod_edit_player(data){
         if (Object.hasOwn(data, "coins")) Players[data.token].coins = data.coins;
         if (Object.hasOwn(data, "stars")) Players[data.token].stars = data.stars;
         if (Object.hasOwn(data, "canDuel")) Players[data.token].canDuel = data.canDuel;
+        if (Object.hasOwn(data, "canSteal")) Players[data.token].canSteal = data.canSteal;
+        if (Object.hasOwn(data, "isStealing")) Players[data.token].isStealing = data.isStealing;
         if (Object.hasOwn(data, "turnsCompleted")) Players[data.token].turnsCompleted = data.turnsCompleted;
         Players[data.token].modFlag = true;
         saveData();
@@ -366,13 +372,13 @@ function get_status(data){
     if ((Metadata.status == "TURN" || Metadata.status == "MINIGAME") && Object.hasOwn(data, "token") && Object.hasOwn(Players, data.token) && Players[data.token].checkedIn){
         if (Players[data.token].modFlag){
             return { method: data.method, status: Metadata.status, turn: Metadata.turn, endTime: Metadata.nextStatus, modFlag: true,
-                data: { coins: Players[data.token].coins, stars: Players[data.token].stars, turnsCompleted: Players[data.token].turnsCompleted, roll: Players[data.token].roll, items: Players[data.token].items, position: Players[data.token].position, collectedSilverStars: Players[data.token].collectedSilverStars, canDuel: Players[data.token].canDuel, usedItem: Players[data.token].usedItem, tutorial: Players[data.token].tutorial },
+                data: { coins: Players[data.token].coins, stars: Players[data.token].stars, turnsCompleted: Players[data.token].turnsCompleted, roll: Players[data.token].roll, items: Players[data.token].items, position: Players[data.token].position, collectedSilverStars: Players[data.token].collectedSilverStars, canDuel: Players[data.token].canDuel, canSteal: Players[data.token].canSteal, usedItem: Players[data.token].usedItem, tutorial: Players[data.token].tutorial },
                 silverStars: Metadata.silverStars
             };
         }
         else{
             return { method: data.method, status: Metadata.status, turn: Metadata.turn, endTime: Metadata.nextStatus, 
-                data: { coins: Players[data.token].coins, stars: Players[data.token].stars, turnsCompleted: Players[data.token].turnsCompleted, roll: Players[data.token].roll, items: Players[data.token].items, position: Players[data.token].position, collectedSilverStars: Players[data.token].collectedSilverStars, canDuel: Players[data.token].canDuel, usedItem: Players[data.token].usedItem, tutorial: Players[data.token].tutorial },
+                data: { coins: Players[data.token].coins, stars: Players[data.token].stars, turnsCompleted: Players[data.token].turnsCompleted, roll: Players[data.token].roll, items: Players[data.token].items, position: Players[data.token].position, collectedSilverStars: Players[data.token].collectedSilverStars, canDuel: Players[data.token].canDuel, canSteal: Players[data.token].canSteal, isStealing: Players[data.token].isStealing, usedItem: Players[data.token].usedItem, tutorial: Players[data.token].tutorial },
                 silverStars: Metadata.silverStars
             };
         }
@@ -380,7 +386,7 @@ function get_status(data){
     else if (Metadata.status == "RESULTS"){
         var publicPlayerData = [];
         for (const [key, value] of Object.entries(Players)) {
-            if (value.checkedIn) publicPlayerData.push({ ign: value.ign, coins: value.coins, stars: value.stars });
+            if (value.checkedIn) publicPlayerData.push({ ign: value.ign, coins: value.coins, stars: value.stars, character: value.character });
         }
         return { method: data.method, status: Metadata.status, data: publicPlayerData };
     }
@@ -406,8 +412,11 @@ function set_player_data(data){
             if (Object.hasOwn(data, "roll")) Players[data.token].roll = data.roll;
             if (Object.hasOwn(data, "duel")) Players[data.token].duel = data.duel;
             if (Object.hasOwn(data, "canDuel")) Players[data.token].canDuel = data.canDuel;
+            if (Object.hasOwn(data, "canSteal")) Players[data.token].canSteal = data.canSteal;
+            if (Object.hasOwn(data, "isStealing")) Players[data.token].isStealing = data.isStealing;
             if (Object.hasOwn(data, "usedItem")) Players[data.token].usedItem = data.usedItem;
             if (Object.hasOwn(data, "tutorial")) Players[data.token].tutorial = data.tutorial;
+            if (Object.hasOwn(data, "character")) Players[data.token].character = data.character;
 
             saveData();
         }
@@ -419,7 +428,7 @@ function set_player_data(data){
                 Players[data.token].modFlag = false;
             }
             else{
-                return { method: data.method, success: false, modFlag: true };
+                return { method: data.method, success: false, modFlag: true, data: Players[data.token] };
             }
         }
     }
@@ -504,8 +513,76 @@ function generateRoomPassword(){
   return password;
 }
 
-function generateRoomPool(){
-    return "MSP" + Math.floor(Math.random() * 3);
+const MaxPoolUses = 5;
+var PoolUses = {};
+function resetPoolUses(){
+    PoolUses = {};
+}
+
+function generateRoomPool(players){
+    if (players == null){
+        let i = 0;
+        //Finds the lowest value pool that does not exceed the MaxPoolUses
+        while (true){
+            let pool = "MSP" + i;
+            if (Object.hasOwn(PoolUses, pool)){
+                if (PoolUses[pool] >= MaxPoolUses){
+                    i++;
+                    continue;
+                }
+                else{
+                    PoolUses[pool]++;
+                    return pool;
+                }
+            }
+            else{
+                Object.defineProperty(PoolUses, pool, { writable: true, configurable: true, enumerable: true, value: 1 });
+                return pool;
+            }
+        }
+    }
+    else{
+        let poolValues = [];
+        let poolNames = [];
+        for (let i = 0; i < players.length; i++){
+            if (Players[players[i]].lastPool == null || Players[players[i]].lastPool == "") continue;
+            if (!poolNames.includes(Players[players[i]].lastPool)){
+                poolNames.push(Players[players[i]].lastPool);
+                poolValues.push(1);
+            }
+            else poolValues[poolNames.indexOf(Players[players[i]].lastPool)]++;
+        }
+        if (poolValues.length == 0) return generateRoomPool();
+        //Sort pool uses from highest to lowest usage
+        for (let i = 0; i < poolValues.length - 1; i++){
+            for (let j = 0; j < poolValues.length - i - 1; j++){
+                if (poolValues[j] < poolValues[j+1]){
+                    let tempValue = poolValues[j];
+                    let tempName = poolNames[j];
+                    poolValues[j] = poolValues[j + 1];
+                    poolNames[j] = poolNames[j + 1];
+                    poolValues[j + 1] = tempValue;
+                    poolNames[j + 1] = tempName;
+                }
+            }
+        }
+        for (let i = 0; i < poolValues.length; i++){
+            if (Object.hasOwn(PoolUses, poolNames[i])){
+                if (PoolUses[poolNames[i]] < MaxPoolUses){
+                    PoolUses[poolNames[i]]++;
+                    return poolNames[i];
+                }
+                else{
+                    continue;
+                }
+            }
+            else{
+                Object.defineProperty(PoolUses, poolNames[i], { writable: true, enumerable: true, configurable: true, value: 1 });
+                return poolNames[i];
+            }
+        }
+        return generateRoomPool();
+    }
 }
 
 function register(data){
@@ -515,7 +592,7 @@ function register(data){
 
     for (const [key, value] of Object.entries(Players)) {
         if (value.discord == data.discord && value.ign == data.ign){
-            return { method: data.method, success: true, token: key, startTime: Metadata.startTime };
+            return { method: data.method, success: true, token: key, startTime: Metadata.startTime, character: Players[token].character };
         }
         else if (value.discord == data.discord || value.ign == data.ign){
             return { method: data.method, success: false, error: "could not register player" };
@@ -524,18 +601,18 @@ function register(data){
 
     let token = generateLoginToken();
     
-    Object.defineProperty(Players, token, {writable: true, enumerable: true, configurable: true, value: { discord: data.discord, ign: data.ign, checkedIn: false, coins: 10, stars: 0, position: {x: 15, y: 30}, collectedSilverStars: [], items: ["doubledice"], usedItem: null, turnsCompleted: 0, roll: 0, canDuel: true, duel: false, modFlag: false, tutorial: true }});
+    Object.defineProperty(Players, token, {writable: true, enumerable: true, configurable: true, value: { discord: data.discord, ign: data.ign, character: { hat: -1, shirt: -1, skin: -1, hair: -1 }, checkedIn: false, coins: 10, stars: 0, position: {x: 15, y: 30}, collectedSilverStars: [], items: ["doubledice"], usedItem: null, turnsCompleted: 0, roll: 0, canDuel: true, canSteal: true, isStealing: false, duel: false, modFlag: false, tutorial: true }});
+    Object.defineProperty(Players[token], "lastPool", { writable: true, enumerable: false, configurable: true, value: null });
     saveData();
 
     console.log("Registered Player: " + data.discord + ", " + data.ign);
     
-    return { method: data.method, success: true, token: token, startTime: Metadata.startTime };
-    //MAYBE ADD DISCORD INTEGRATION TO THIS SERVER
+    return { method: data.method, success: true, token: token, startTime: Metadata.startTime, character: Players[token].character };
 }
 
 function sign_in(data){
     if (Object.hasOwn(Players, data.token)){
-        return { method: data.method, success: true, startTime: Metadata.startTime, checkedIn: Players[data.token].checkedIn };
+        return { method: data.method, success: true, startTime: Metadata.startTime, checkedIn: Players[data.token].checkedIn, character: Players[data.token].character };
     }
     else{
         return { method: data.method, success: false, error: "could not find player" };
@@ -577,7 +654,7 @@ function end_turn(data){
                 return { method: data.method, success: true };
             }
             else{
-                return { method: data.method, success: false, modFlag: true, data: { position: Players[data.token].position, coins: Players[data.token].coins, stars: Players[data.token].stars, items: Players[data.token].items, turnsCompleted: Players[data.token].turnsCompleted, collectedSilverStars: Players[data.token].collectedSilverStars, canDuel: Players[data.token].canDuel } };
+                return { method: data.method, success: false, modFlag: true, data: Players[data.token] };
             }
         }
         else{
@@ -592,6 +669,8 @@ function end_turn(data){
             Players[data.token].collectedSilverStars = data.collectedSilverStars;
             Players[data.token].duel = data.duel;
             Players[data.token].canDuel = data.canDuel;
+            Players[data.token].canSteal = data.canSteal;
+            Players[data.token].isStealing = data.isStealing;
             Players[data.token].usedItem = null;
             Players[data.token].roll = 0;
 
@@ -625,6 +704,8 @@ var minigameWarnStart = false;
 var minigameWarn3Min = false;
 var minigameWarn1Min = false;
 function checkMinigameStart(){
+    resetPoolUses();
+
     var checkedInPlayers = [];
 
     for (const [key, value] of Object.entries(Players)) {
@@ -646,11 +727,11 @@ function checkMinigameStart(){
     //START MINIGAME!!!
     console.log("MINIGAME HAS STARTED!!!");
 
-    var publicPlayerData = [];
+    /*var publicPlayerData = [];
     for (const [key, value] of Object.entries(Players)) {
         if (value.checkedIn) publicPlayerData.push({ ign: value.ign, coins: value.coins, stars: value.stars });
     }
-    announce(JSON.stringify({ method: "update_player_data", data: publicPlayerData }));
+    announce(JSON.stringify({ method: "update_player_data", data: publicPlayerData }));*/
 
     MinigameLobbies = [];
     minigameWarnStart = false;
@@ -660,8 +741,16 @@ function checkMinigameStart(){
     var minigame = "";
     var minigamePool = [];
     var minigamePoolTotal = 0;
+    var battleMinigame = Metadata.battleMinigamesEnabled && Metadata.turn % Metadata.battleMinigameFrequency == 0 && Metadata.turn != Metadata.gameLength;
     for (const [key, value] of Object.entries(Minigames)){
-        if (!Object.hasOwn(value, "hidden") && !Metadata.playedMinigames.includes(key)){
+        if (Metadata.playedMinigames.includes(key)) continue;
+        if (battleMinigame){
+            if (Object.hasOwn(value, "battleable") && value.battleable){
+                minigamePool.push({ minigame: key, weight: value.weight });
+                minigamePoolTotal += value.weight;
+            }
+        }
+        else if (!Object.hasOwn(value, "hidden")){
             minigamePool.push({ minigame: key, weight: value.weight });
             minigamePoolTotal += value.weight;
         }
@@ -710,6 +799,68 @@ function checkMinigameStart(){
         }
     }
 
+    //Make Star Steal Lobbies
+    //Star with checking players ranked above player then check below
+    var stealLobbiedPlayers = [];
+    for (let i = 0; i < checkedInPlayers.length; i++){
+        if (Players[checkedInPlayers[i]].isStealing && !stealLobbiedPlayers.includes(i)){
+            let foundOpponent = false;
+            //Check players above in ranking
+            for (let j = 1; j < checkedInPlayers.length; j++){
+                if (i + j >= checkedInPlayers.length) break;
+                if (Players[checkedInPlayers[i + j]].stars > 0 && !Players[checkedInPlayers[i + j]].duel){
+                    //Steal it
+                    foundOpponent = true;
+                    stealLobbiedPlayers.push(i);
+                    stealLobbiedPlayers.push(i + j);
+                    MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i + j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i + j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], steal: Players[checkedInPlayers[i + j]].isStealing ? [0, 1] : [0], chatHistory: [] });
+                    break;
+                }
+            }
+            //Check players below
+            if (!foundOpponent){
+                for (let j = 1; j < checkedInPlayers.length; j++){
+                    if (i - j < 0) break;
+                    if (Players[checkedInPlayers[i - j]].stars > 0 && !Players[checkedInPlayers[i - j]].duel){
+                        //Steal it
+                        foundOpponent = true;
+                        stealLobbiedPlayers.push(i);
+                        stealLobbiedPlayers.push(i - j);
+                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i - j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i - j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], steal: Players[checkedInPlayers[i - j]].isStealing ? [0, 1] : [0], chatHistory: [] });
+                        break;
+                    }
+                }
+            }
+            if (foundOpponent){
+                Players[checkedInPlayers[i]].canSteal = false;
+                Players[checkedInPlayers[i]].isStealing = false;
+                Players[checkedInPlayers[stealLobbiedPlayers[stealLobbiedPlayers.length - 1]]].isStealing = false;
+            }
+            else{
+                //No Players Available, refund coins
+                Players[checkedInPlayers[i]].canSteal = true;
+                Players[checkedInPlayers[i]].isStealing = false;
+                Players[checkedInPlayers[i]].coins += 30;
+            }
+        }
+    }
+    //Remove Steal Lobbied Players from checked-in list
+    //Sort lobbied indicies
+    for (let i = 0; i < stealLobbiedPlayers.length - 1; i++){
+        for (let j = 0; j < stealLobbiedPlayers.length - i - 1; j++){
+            if (stealLobbiedPlayers[j + 1] > stealLobbiedPlayers[j]){
+                let temp = stealLobbiedPlayers[j];
+                stealLobbiedPlayers[j] = stealLobbiedPlayers[j + 1];
+                stealLobbiedPlayers[j + 1] = temp;
+            }
+        }
+    }
+    //Remove indicies from highest to smallest
+    while (stealLobbiedPlayers.length > 0){
+        checkedInPlayers.splice(stealLobbiedPlayers[0], 1);
+        stealLobbiedPlayers.splice(0, 1);
+    }
+
     //Make Duel Lobbies
     //Start with matching duelists against each other
     const duelDittoCheckLength = 4;
@@ -717,11 +868,11 @@ function checkMinigameStart(){
     const duelMOE = 0.25;
     function duelError(bid1, bid2){ return Math.abs(bid1 - bid2) / Math.max(bid1, bid2); }
     var duelLobbiedPlayers = [];
-    for (var i = 0; i < checkedInPlayers.length; i++){
+    for (let i = 0; i < checkedInPlayers.length; i++){
         if (Players[checkedInPlayers[i]].duel && !duelLobbiedPlayers.includes(i)){
             let foundDuel = false;
             //Check for players with similar bid
-            for (var j = 1; j < duelDittoCheckLength; j++){
+            for (let j = 1; j < duelDittoCheckLength; j++){
                 if (i + j < checkedInPlayers.length && !duelLobbiedPlayers.includes(i + j) && Players[checkedInPlayers[i]].duel.type == Players[checkedInPlayers[i + j]].duel.type && duelError(Players[checkedInPlayers[i]].duel.amount, Players[checkedInPlayers[i + j]].duel.amount) < duelMOE){
                     let newBet = { type: Players[checkedInPlayers[i]].duel.type, amount: Math.min(Players[checkedInPlayers[i]].duel.amount, Players[checkedInPlayers[i + j]].duel.amount) };
                     foundDuel = true;
@@ -729,7 +880,7 @@ function checkMinigameStart(){
                     duelLobbiedPlayers.push(i + j);
                     Players[checkedInPlayers[i]][newBet.type] += Players[checkedInPlayers[i]].duel.amount - newBet.amount;
                     Players[checkedInPlayers[i + j]][newBet.type] += Players[checkedInPlayers[i + j]].duel.amount - newBet.amount;
-                    MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i + j]], pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
+                    MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i + j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i + j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
                     break;
                 }
                 if (i - j >= 0 && !duelLobbiedPlayers.includes(i - j) && Players[checkedInPlayers[i]].duel.type == Players[checkedInPlayers[i - j]].duel.type && Players[checkedInPlayers[i]].duel.amount == Players[checkedInPlayers[i - j]].duel.amount){
@@ -739,20 +890,20 @@ function checkMinigameStart(){
                     duelLobbiedPlayers.push(i - j);
                     Players[checkedInPlayers[i]][newBet.type] += Players[checkedInPlayers[i]].duel.amount - newBet.amount;
                     Players[checkedInPlayers[i - j]][newBet.type] += Players[checkedInPlayers[i - j]].duel.amount - newBet.amount;
-                    MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i - j]], pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
+                    MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i - j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i - j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
                     break;
                 }
             }
             
             if (!foundDuel){
                 //Could not find a match in range, now checking against all checked-in players
-                for (var j = 1; j < duelNonDuelistLength; j++){
+                for (let j = 1; j < duelNonDuelistLength; j++){
                     if (i + j < checkedInPlayers.length && !duelLobbiedPlayers.includes(i + j) && !Players[checkedInPlayers[i + j]].duel && Players[checkedInPlayers[i + j]][Players[checkedInPlayers[i]].duel.type] >= Players[checkedInPlayers[i]].duel.amount) {
                         foundDuel = true;
                         duelLobbiedPlayers.push(i);
                         duelLobbiedPlayers.push(i + j);
                         Players[checkedInPlayers[i + j]][Players[checkedInPlayers[i]].duel.type] -= Players[checkedInPlayers[i]].duel.amount;
-                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i + j]], pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: Players[checkedInPlayers[i]].duel, chatHistory: [] });
+                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i + j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i + j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: Players[checkedInPlayers[i]].duel, chatHistory: [] });
                         break;
                     }
                     if (i - j >= 0 && !duelLobbiedPlayers.includes(i - j) && !Players[checkedInPlayers[i - j]].duel && Players[checkedInPlayers[i - j]][Players[checkedInPlayers[i]].duel.type] >= Players[checkedInPlayers[i]].duel.amount){
@@ -760,7 +911,7 @@ function checkMinigameStart(){
                         duelLobbiedPlayers.push(i);
                         duelLobbiedPlayers.push(i - j);
                         Players[checkedInPlayers[i - j]][Players[checkedInPlayers[i]].duel.type] -= Players[checkedInPlayers[i]].duel.amount;
-                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i - j]], pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: Players[checkedInPlayers[i]].duel, chatHistory: [] });
+                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i - j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i - j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: Players[checkedInPlayers[i]].duel, chatHistory: [] });
                         break;
                     }
                     if (i - j < 0 && i + j >= checkedInPlayers.length) break;
@@ -769,14 +920,14 @@ function checkMinigameStart(){
 
             if (!foundDuel){
                 //Do a duel with a limited bet, refund the rest of resources OR with the first duelist with a similar bet
-                for (var j = 1; j < checkedInPlayers.length; j++){
+                for (let j = 1; j < checkedInPlayers.length; j++){
                     if (i + j < checkedInPlayers.length && !duelLobbiedPlayers.includes(i + j) && !Players[checkedInPlayers[i + j]].duel && Players[checkedInPlayers[i + j]][Players[checkedInPlayers[i]].duel.type] > 0){
                         //Normal Player
                         foundDuel = true;
                         let newBet = { type: Players[checkedInPlayers[i]].duel.type, amount: Math.min(Players[checkedInPlayers[i]].duel.amount, Players[checkedInPlayers[i + j]][Players[checkedInPlayers[i]].duel.type]) };
                         duelLobbiedPlayers.push(i);
                         duelLobbiedPlayers.push(i + j);
-                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i + j]], pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
+                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i + j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i + j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
                         Players[checkedInPlayers[i]][Players[checkedInPlayers[i]].duel.type] += Players[checkedInPlayers[i]].duel.amount - newBet.amount;
                         Players[checkedInPlayers[i + j]][Players[checkedInPlayers[i]].duel.type] -= newBet.amount;
                         break;
@@ -789,7 +940,7 @@ function checkMinigameStart(){
                         duelLobbiedPlayers.push(i + j);
                         Players[checkedInPlayers[i]][newBet.type] += Players[checkedInPlayers[i]].duel.amount - newBet.amount;
                         Players[checkedInPlayers[i + j]][newBet.type] += Players[checkedInPlayers[i + j]].duel.amount - newBet.amount;
-                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i + j]], pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
+                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i + j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i + j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
                         break;
                     }
 
@@ -798,7 +949,7 @@ function checkMinigameStart(){
                         let newBet = { type: Players[checkedInPlayers[i]].duel.type, amount: Math.min(Players[checkedInPlayers[i]].duel.amount, Players[checkedInPlayers[i - j]][Players[checkedInPlayers[i]].duel.type]) };
                         duelLobbiedPlayers.push(i);
                         duelLobbiedPlayers.push(i - j);
-                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i - j]], pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
+                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i - j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i - j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
                         Players[checkedInPlayers[i]][Players[checkedInPlayers[i]].duel.type] += Players[checkedInPlayers[i]].duel.amount - newBet.amount;
                         Players[checkedInPlayers[i - j]][Players[checkedInPlayers[i]].duel.type] -= newBet.amount;
                         break;
@@ -810,7 +961,7 @@ function checkMinigameStart(){
                         duelLobbiedPlayers.push(i - j);
                         Players[checkedInPlayers[i]][newBet.type] += Players[checkedInPlayers[i]].duel.amount - newBet.amount;
                         Players[checkedInPlayers[i - j]][newBet.type] += Players[checkedInPlayers[i - j]].duel.amount - newBet.amount;
-                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i - j]], pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
+                        MinigameLobbies.push({ minigame: Minigames[minigame].duelMinigame, players: [checkedInPlayers[i], checkedInPlayers[i - j]], pool: generateRoomPool([checkedInPlayers[i], checkedInPlayers[i - j]]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], bet: newBet, chatHistory: [] });
                         break;
                     }
 
@@ -822,14 +973,15 @@ function checkMinigameStart(){
                 //Refund and cancel
                 console.error("Could not lobby player for duel");
                 Players[checkedInPlayers[i]][Players[checkedInPlayers[i]].duel.type] += Players[checkedInPlayers[i]].duel.amount;
+                Players[checkedInPlayers[i]].canDuel = true;
             }
         }
     }
 
     //Remove Duel Lobbied Players from checked-in list
     //Sort lobbied indicies
-    for (var i = 0; i < duelLobbiedPlayers.length - 1; i++){
-        for (var j = 0; j < duelLobbiedPlayers.length - i - 1; j++){
+    for (let i = 0; i < duelLobbiedPlayers.length - 1; i++){
+        for (let j = 0; j < duelLobbiedPlayers.length - i - 1; j++){
             if (duelLobbiedPlayers[j + 1] > duelLobbiedPlayers[j]){
                 let temp = duelLobbiedPlayers[j];
                 duelLobbiedPlayers[j] = duelLobbiedPlayers[j + 1];
@@ -845,58 +997,71 @@ function checkMinigameStart(){
 
     //New Lobby System
     var numLobbies = Math.ceil(checkedInPlayers.length / Minigames[minigame].lobbySize);
-    var lastLobbySize = checkedInPlayers.length % Minigames[minigame].lobbySize;
+    var lastLobbySize = (checkedInPlayers.length % Minigames[minigame].lobbySize == 0) ? Minigames[minigame].lobbySize : checkedInPlayers.length % Minigames[minigame].lobbySize;
     var lastLobbyPlacement = Math.floor(Math.random() * numLobbies);
 
     var currentPlacement = 0;
-    for (var i = 0; i < numLobbies; i++){
+    for (let i = 0; i < numLobbies; i++){
         let thisLobbySize = i == lastLobbyPlacement ? lastLobbySize : Minigames[minigame].lobbySize;
         var players = [];
         var setApartPlayers = [];
-        for (var j = 0; j < Minigames[minigame].lobbySize; j++){
+        for (let j = 0; j < thisLobbySize; j++){
             players.push(checkedInPlayers[currentPlacement]);
             currentPlacement++;
-
-            if (Object.hasOwn(Minigames[minigame], "setApartPlayers") && 
-                ((setApartPlayers.length < Minigames[minigame].setApartPlayers && Math.random() * thisLobbySize < 1) || //Checks for randomly setting apart players
-                (thisLobbySize - j <= (Minigames[minigame].setApartPlayers - setApartPlayers.length)))){//Checks if every player left needs to be set apart
-                setApartPlayers.push(j);
+        }
+        if (Object.hasOwn(Minigames[minigame], "setApartPlayers") && thisLobbySize > Minigames[minigame].setApartPlayers){
+            while(setApartPlayers.length < Minigames[minigame].setApartPlayers){
+                let index = Math.floor(Math.random() * thisLobbySize);
+                if (!setApartPlayers.includes(index)) setApartPlayers.push(index);
             }
-
-            if (lastLobbySize > 0 && i == lastLobbyPlacement && j == lastLobbySize - 1) break;
-            if (currentPlacement == checkedInPlayers.length) break;
         }
 
         if (lastLobbySize > 0 && i == lastLobbyPlacement){
             if (lastLobbySize == 1){
-                MinigameLobbies.push({ minigame: Minigames[minigame].soloMinigame, players: players, pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], chatHistory: [] });
+                MinigameLobbies.push({ minigame: Minigames[minigame].soloMinigame, players: players, pool: generateRoomPool(players), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], chatHistory: [] });
             }
             else if ((lastLobbySize % 2 == 1 && Minigames[minigame].evenSize) || (lastLobbySize < Minigames[minigame].minLobbySize)){
                 if (lastLobbySize - 1 >= Minigames[minigame].minLobbySize){
                     //Put 1 player in a solo minigame, put everyone else in the normal minigame
                     let removePlayer;
                     for (let n = 0; n < players.length; n++) if (!setApartPlayers.includes(n)) removePlayer = n;
-                    let removePlayerToken = players[n];
-                    players.splice(n, 1);
-                    MinigameLobbies.push({ minigame: minigame, players: players, pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: setApartPlayers, chatHistory: [] });
-                    MinigameLobbies.push({ minigame: Minigames[minigame].soloMinigame, players: [removePlayerToken], pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], chatHistory: [] });
+                    let removePlayerToken = players[removePlayer];
+                    players.splice(removePlayer, 1);
+                    //Prevents a set apart player being a player who's no longer in the lobby
+                    for (let n = 0; n < setApartPlayers.length; n++){ 
+                        if (setApartPlayers[n] >= players.length){
+                            if (setApartPlayers.includes(0)){
+                                setApartPlayers[n]--;
+                            }
+                            else{
+                                setApartPlayers[n] = 0;
+                            }
+                        }
+                    }
+                    MinigameLobbies.push({ minigame: minigame, players: players, pool: generateRoomPool(players), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: setApartPlayers, chatHistory: [] });
+                    if (battleMinigame) Object.defineProperty(MinigameLobbies[i], "battle", { enumerable: true, configurable: true, writable: true, value: true });
+                    MinigameLobbies.push({ minigame: Minigames[minigame].soloMinigame, players: [removePlayerToken], pool: generateRoomPool([removePlayerToken]), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], chatHistory: [] });
                 }
                 else{
                     MinigameLobbies.push({ minigame: Minigames[minigame].extraMinigame, players: players, pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: [], chatHistory: [] });
                 }
             }
             else{
-                MinigameLobbies.push({ minigame: minigame, players: players, pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: setApartPlayers, chatHistory: [] });
+                MinigameLobbies.push({ minigame: minigame, players: players, pool: generateRoomPool(players), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: setApartPlayers, chatHistory: [] });
+                if (battleMinigame) Object.defineProperty(MinigameLobbies[i], "battle", { enumerable: true, configurable: true, writable: true, value: true });
             }
         }
         else{
-            MinigameLobbies.push({ minigame: minigame, players: players, pool: generateRoomPool(), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: setApartPlayers, chatHistory: [] });
+            MinigameLobbies.push({ minigame: minigame, players: players, pool: generateRoomPool(players), pass: generateRoomPassword(), result: [], scoreConfirm: false, setApartPlayers: setApartPlayers, chatHistory: [] });
+            if (battleMinigame) Object.defineProperty(MinigameLobbies[i], "battle", { enumerable: true, configurable: true, writable: true, value: true });
         }
     }
     
     Metadata.status = "MINIGAME";
     Metadata.nextStatus = Math.ceil(Date.now() / 60000) + Minigames[minigame].timeLimit; //60000 converts from milliseconds to minutes
     Metadata.minigameStartTime = Math.round(Date.now() / 60000);
+
+    UpdatePlayerLastPools();
 
     GenerateMinigameChatroomValues();
 
@@ -915,6 +1080,14 @@ function GenerateMinigameChatroomValues(){
     }
 }
 
+function UpdatePlayerLastPools(){
+    for (let i = 0; i < MinigameLobbies.length; i++){
+        for (let j = 0; j < MinigameLobbies[i].players.length; j++){
+            Players[MinigameLobbies[i].players[j]].lastPool = MinigameLobbies[i].pool;
+        }
+    }
+}
+
 function get_lobby(data, ws){
     for (var i = 0; i < MinigameLobbies.length; i++){
         if (MinigameLobbies[i].players.includes(data.token)){
@@ -923,12 +1096,18 @@ function get_lobby(data, ws){
             var lobbyMsg = [];
             for (var j = 0; j < MinigameLobbies[i].players.length; j++){
                 if (!Object.hasOwn(Players, MinigameLobbies[i].players[j])){
-                    lobbyMsg.push({ discord: "", ign: "[deleted]#0000" });
+                    lobbyMsg.push({ discord: "", ign: "[deleted]#0000", character: { hat: 0, hair: 0, shirt: 0, skin: 0 } });
                 }
-                else lobbyMsg.push({ discord: Players[MinigameLobbies[i].players[j]].discord, ign: Players[MinigameLobbies[i].players[j]].ign });
+                else lobbyMsg.push({ discord: Players[MinigameLobbies[i].players[j]].discord, ign: Players[MinigameLobbies[i].players[j]].ign, character: Players[MinigameLobbies[i].players[j]].character });
             }
             if (Object.hasOwn(MinigameLobbies[i], "bet")){
                 return { method: data.method, success: true, startTime: Metadata.minigameStartTime, endTime: Metadata.nextStatus, lobby: lobbyMsg, minigame: MinigameLobbies[i].minigame, pool: MinigameLobbies[i].pool, pass: MinigameLobbies[i].pass, setApartPlayers: MinigameLobbies[i].setApartPlayers, bet: MinigameLobbies[i].bet, chatHistory: MinigameLobbies[i].chatHistory };
+            }
+            else if (Object.hasOwn(MinigameLobbies[i], "steal")){
+                return { method: data.method, success: true, startTime: Metadata.minigameStartTime, endTime: Metadata.nextStatus, lobby: lobbyMsg, minigame: MinigameLobbies[i].minigame, pool: MinigameLobbies[i].pool, pass: MinigameLobbies[i].pass, setApartPlayers: MinigameLobbies[i].setApartPlayers, steal: MinigameLobbies[i].steal, chatHistory: MinigameLobbies[i].chatHistory };
+            }
+            else if (Object.hasOwn(MinigameLobbies[i], "battle")){
+                return { method: data.method, success: true, startTime: Metadata.minigameStartTime, endTime: Metadata.nextStatus, lobby: lobbyMsg, minigame: MinigameLobbies[i].minigame, pool: MinigameLobbies[i].pool, pass: MinigameLobbies[i].pass, setApartPlayers: MinigameLobbies[i].setApartPlayers, battle: MinigameLobbies[i].battle, chatHistory: MinigameLobbies[i].chatHistory };
             }
             else{
                 return { method: data.method, success: true, startTime: Metadata.minigameStartTime, endTime: Metadata.nextStatus, lobby: lobbyMsg, minigame: MinigameLobbies[i].minigame, pool: MinigameLobbies[i].pool, pass: MinigameLobbies[i].pass, setApartPlayers: MinigameLobbies[i].setApartPlayers, chatHistory: MinigameLobbies[i].chatHistory };
@@ -973,12 +1152,28 @@ function minigameServerMessage(msg){
     saveData();
 }
 
+const battleMinigameRewards = [
+    [],
+    [0],
+    [10, -10],
+    [10, 0, -10],
+    [10, 5, -5, -10]
+];
+const battleMinigameTieReward = 3;
 function endMinigame(){
     console.log("All Lobbies Finished Minigame");
     var minigameLogFile = createWriteStream("./data/minigameLog.txt", { flags: "a" });
 
-    for (var i = 0; i < MinigameLobbies.length; i++){
-        for (var j = 0; j < MinigameLobbies[i].players.length; j++){
+    function isCoopTie(resultArray){
+        let target = resultArray[0];
+        for (let i = 1; i < resultArray.length; i++){
+            if (resultArray[i] != target) return false;
+        }
+        return true;
+    }
+
+    for (let i = 0; i < MinigameLobbies.length; i++){
+        for (let j = 0; j < MinigameLobbies[i].players.length; j++){
             if (!Object.hasOwn(Players, MinigameLobbies[i].players[j])) continue;
             //Give Reward
             if (Object.hasOwn(MinigameLobbies[i], "bet")){
@@ -989,8 +1184,44 @@ function endMinigame(){
                 }
                 else Players[MinigameLobbies[i].players[j]][MinigameLobbies[i].bet.type] += MinigameLobbies[i].result[j] == 0 ? MinigameLobbies[i].bet.amount * 2 : 0;
             }
+            else if (Object.hasOwn(MinigameLobbies[i], "steal")){
+                if (MinigameLobbies[i].result.length == 0 || MinigameLobbies[i].result[0] == MinigameLobbies[i].result[1]){
+                    //TIE!!! Thief gets nothing, other player gets 10 coins
+                    Players[MinigameLobbies[i].players[j]].coins += MinigameLobbies[i].steal.includes(j) ? 0 : 10;
+                }
+                else{
+                    if (MinigameLobbies[i].steal.includes(j)){
+                        //Thief
+                        Players[MinigameLobbies[i].players[j]].stars += MinigameLobbies[i].result[j] == 0 ? 1 : (MinigameLobbies[i].steal.length == 2 ? -1 : 0);
+                    }
+                    else{
+                        //Victim
+                        if (MinigameLobbies[i].result[j] == 0)  Players[MinigameLobbies[i].players[j]].coins += 10;
+                        else Players[MinigameLobbies[i].players[j]].stars -= 1;
+                    }
+                }
+            }
             else if (MinigameLobbies[i].result.length == 0){
                 //Do Nothing, players did not finish their minigame in time
+            }
+            else if (Object.hasOwn(MinigameLobbies[i], "battle")){
+                if (Minigames[MinigameLobbies[i].minigame].type == "coop"){
+                    if (isCoopTie(MinigameLobbies[i].result)){
+                        //Tie, different reward
+                        Players[MinigameLobbies[i].players[j]].coins += battleMinigameTieReward;
+                    }
+                    else{
+                        Players[MinigameLobbies[i].players[j]].coins = Math.max(Players[MinigameLobbies[i].players[j]].coins + battleMinigameRewards[2][MinigameLobbies[i].result[j]], 0);
+                    }
+                }
+                else if (Minigames[MinigameLobbies[i].minigame].type == "vs"){
+                    if (Minigames[MinigameLobbies[i].minigame].teams == 0){
+                        Players[MinigameLobbies[i].players[j]].coins = Math.max(Players[MinigameLobbies[i].players[j]].coins + battleMinigameRewards[MinigameLobbies[i].players.length][MinigameLobbies[i].result[j]], 0);
+                    }
+                    else{
+                        Players[MinigameLobbies[i].players[j]].coins = Math.max(Players[MinigameLobbies[i].players[j]].coins + battleMinigameRewards[Minigames[MinigameLobbies[i].minigame].teams][MinigameLobbies[i].result[j]], 0);
+                    }
+                }
             }
             else if (Minigames[MinigameLobbies[i].minigame].type == "coin"){
                 Players[MinigameLobbies[i].players[j]].coins += Math.floor(Minigames[MinigameLobbies[i].minigame].rewards * MinigameLobbies[i].result[j]);
@@ -998,7 +1229,7 @@ function endMinigame(){
             else{
                 Players[MinigameLobbies[i].players[j]].coins += Minigames[MinigameLobbies[i].minigame].rewards[MinigameLobbies[i].result[j]];
             }
-            //Reset roll for next turn
+            //Reset some values for next turn
             Players[MinigameLobbies[i].players[j]].roll = 0;
             Players[MinigameLobbies[i].players[j]].usedItem = null;
         }
@@ -1006,6 +1237,12 @@ function endMinigame(){
         var logData = { turn: Metadata.turn, minigame: MinigameLobbies[i].minigame, players: MinigameLobbies[i].players, setApartPlayers: MinigameLobbies[i].setApartPlayers, result: MinigameLobbies[i].result, chatHistory: MinigameLobbies[i].chatHistory };
         if (Object.hasOwn(MinigameLobbies[i], "bet")){
             Object.defineProperty(logData, "bet", { enumerable: true, configurable: true, writable: true, value: MinigameLobbies[i].bet});
+        }
+        else if (Object.hasOwn(MinigameLobbies[i], "steal")){
+            Object.defineProperty(logData, "steal", { enumerable: true, configurable: true, writable: true, value: MinigameLobbies[i].steal});
+        }
+        else if (Object.hasOwn(MinigameLobbies[i], "battle")){
+            Object.defineProperty(logData, "battle", { enumerable: true, configurable: true, writable: true, value: MinigameLobbies[i].battle});
         }
         minigameLogFile.write(JSON.stringify(logData) + "\n");
         MinigameLog.push(logData);
@@ -1022,7 +1259,7 @@ function endMinigame(){
         Metadata.status = "TURN";
         saveData();
 
-        if (Metadata.generateSilverStars) announce(JSON.stringify({ method: "announcement", status: "TURN", turn: Metadata.turn, silverStar: Metadata.silverStars[Metadata.silverStars.length - 1] }));
+        if (Metadata.generateSilverStars) announce(JSON.stringify({ method: "announcement", status: "TURN", turn: Metadata.turn, endTime: Metadata.nextStatus, silverStar: Metadata.silverStars[Metadata.silverStars.length - 1] }));
         else announce(JSON.stringify({ method: "announcement", status: "TURN", turn: Metadata.turn, endTime: Metadata.nextStatus }));
     }
     else{
@@ -1094,8 +1331,15 @@ function submit_results(data){
                         currentPlacement = nextPlacement;
                     }
 
+                    if (Object.hasOwn(MinigameLobbies[i], "steal") && resultOutput[0] == resultOutput[1]){
+                        //Tie in a star steal. Theif should be assigned a loss
+                        resultOutput = [0, 0];
+                        for (let j = 0; j < MinigameLobbies[i].steal.length; j++){
+                            resultOutput[MinigameLobbies[i].steal[j]] = 1;
+                        }
+                    }
 
-                    if (arraysEqual(MinigameLobbies[i].result, resultOutput) || MinigameLobbies[i].players.length < 4){
+                    if (arraysEqual(MinigameLobbies[i].result, resultOutput) || MinigameLobbies[i].players.length == 1){
                         console.log("Minigame Lobby #" + i + " Score Locked");
                         MinigameLobbies[i].result = resultOutput;
                         MinigameLobbies[i].scoreConfirm = true;
@@ -1139,7 +1383,8 @@ function startTournament(){
     Metadata.turn = 1;
     Metadata.silverStars = [];
     Metadata.playedMinigames = [];
-    Metadata.nextStatus = Math.ceil(Date.now() / 60000) + Metadata.turnLength; //60000 converts from milliseconds to minutes
+    //Add an extra 2 minutes for people's first time playing + tutorial
+    Metadata.nextStatus = Math.ceil(Date.now() / 60000) + Metadata.turnLength + 2; //60000 converts from milliseconds to minutes
 
     //Delete minigame log
     writeFileSync("./data/minigameLog.txt", "");
@@ -1148,7 +1393,8 @@ function startTournament(){
 
     saveData();
 
-    announce(JSON.stringify({ method: "announcement", status: "TURN", turn: Metadata.turn, silverStar: Metadata.silverStars[Metadata.silverStars.length - 1] }));
+    if (Metadata.generateSilverStars) announce(JSON.stringify({ method: "announcement", status: "TURN", turn: Metadata.turn, endTime: Metadata.nextStatus, silverStar: Metadata.silverStars[Metadata.silverStars.length - 1] }));
+    else announce(JSON.stringify({ method: "announcement", status: "TURN", turn: Metadata.turn, endTime: Metadata.nextStatus }));
 
     console.log("TOURNAMENT STARTED!!!");
 }
@@ -1160,7 +1406,7 @@ function endTournament(){
 
     var publicPlayerData = [];
     for (const [key, value] of Object.entries(Players)) {
-        if (value.checkedIn) publicPlayerData.push({ ign: value.ign, coins: value.coins, stars: value.stars });
+        if (value.checkedIn) publicPlayerData.push({ ign: value.ign, coins: value.coins, stars: value.stars, character: value.character });
     }
 
     announce(JSON.stringify({ method: "announcement", status: "RESULTS", data: publicPlayerData }));
@@ -1185,7 +1431,7 @@ function update(){
     else if (Metadata.status != "RESULTS"){
         var publicPlayerData = [];
         for (const [key, value] of Object.entries(Players)) {
-            if (value.checkedIn) publicPlayerData.push({ ign: value.ign, coins: value.coins, stars: value.stars });
+            if (value.checkedIn) publicPlayerData.push({ ign: value.ign, coins: value.coins, stars: value.stars, character: value.character });
         }
         announce(JSON.stringify({ method: "update_player_data", data: publicPlayerData }));
 
@@ -1223,6 +1469,7 @@ function loadData(){
     if (backupTemp[0] == "{"){
         console.log("Player Data Found");
         Players = JSON.parse(backupTemp);
+        for (const key of Object.keys(Players)) Object.defineProperty(Players[key], "lastPool", { writable: true, enumerable: false, configurable: true, value: null });
     }
     else{
         console.log("No Player Data Available");
