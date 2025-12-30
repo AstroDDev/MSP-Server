@@ -2,6 +2,7 @@ This is the server code for Mega Splat Party. The Mario Party meets Splatoon par
 
 ## Prerequisites
 - Download the latest MSP-Server release from here (TODO, Insert Link)
+- Node.js (insert link)
 - Install ngrok (insert link) (or any other tunneling alternative for http traffic)
 
 ## Setting Up Files
