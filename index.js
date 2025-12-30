@@ -1,7 +1,7 @@
 import { WebSocketServer } from "ws";
 import { readFileSync, writeFileSync, createWriteStream, openSync, write } from "node:fs";
 
-const wss = new WebSocketServer({ port: 6969 });
+const wss = new WebSocketServer({ port: 8080 });
 
 wss.on("connection", function connection(ws){
     ws.on("message", function m(data){
@@ -1509,4 +1509,5 @@ Moderator Features:
 - View a player's history
 - Change the results of a minigame (and thus change a player's stats automatically)
 - Removing players from the tournament (Might be just as simple as setting checked-in to false)
+
 */
