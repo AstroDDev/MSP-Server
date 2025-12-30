@@ -1,13 +1,13 @@
 This is the server code for Mega Splat Party. The Mario Party meets Splatoon party game that runs in your browser. Below are instructions on how to host your own private games of Mega Splat Party.
 
 ## Prerequisites
-- Download the latest MSP-Server release from here (TODO, Insert Link)
-- Node.js (insert link)
-- Install ngrok (insert link) (or any other tunneling alternative for http traffic)
+- Download MSP-Server as a zip file
+- Install (node.js)[https://nodejs.org/en/download/current]
+- Install (ngrok)[https://ngrok.com/] (or any other tunneling alternative for http traffic)
 
 ## Setting Up Files
-//Teach about setting up metadata file
-//Recommend redownloading the server each game because some files need to be manually reset
+- Extract all the files you downloaded
+- 
 
 ## Start The Server
 //
