@@ -592,7 +592,7 @@ function register(data){
 
     for (const [key, value] of Object.entries(Players)) {
         if (value.discord == data.discord && value.ign == data.ign){
-            return { method: data.method, success: true, token: key, startTime: Metadata.startTime, character: Players[token].character };
+            return { method: data.method, success: true, token: key, startTime: Metadata.startTime, character: Players[key].character };
         }
         else if (value.discord == data.discord || value.ign == data.ign){
             return { method: data.method, success: false, error: "could not register player" };
@@ -1509,5 +1509,4 @@ Moderator Features:
 - View a player's history
 - Change the results of a minigame (and thus change a player's stats automatically)
 - Removing players from the tournament (Might be just as simple as setting checked-in to false)
-
 */
